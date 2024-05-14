@@ -27,17 +27,16 @@ begin
     
     opt2 <= rs2_v when isALUreg = '1' else imm_v; 
     
-      if(isBranch = '1') then --beq
+      if(isBranch = '1') then --beq 0x0
         if(func3 = "000") then 
           if(signed(rs1_v) = signed(rs2_v)) then
             takeBranch <= '1';
           else 
             takeBranch <= '0';
           end if;
-
         end if;
 
-        if(func3 = "001") then --bne
+        if(func3 = "001") then --bne 0x1
           if(signed(rs1_v) /= signed(rs2_v)) then
             takeBranch <= '1';
           else 
@@ -45,7 +44,7 @@ begin
           end if;
         end if;
 
-        if(func3 = "100") then -- blt
+        if(func3 = "100") then -- blt 0x4
           if(signed(rs1_v) < signed(rs2_v)) then
             takeBranch <= '1';
           else 
@@ -53,7 +52,7 @@ begin
           end if;
         end if;
 
-        if(func3 = "101") then -- bge
+        if(func3 = "101") then -- bge 0x5
           if(signed(rs1_v) >= signed(rs2_v)) then
             takeBranch <= '1';
           else 
@@ -61,7 +60,7 @@ begin
           end if;
         end if;
 
-        if(func3 = "110") then --bltu
+        if(func3 = "110") then --bltu 0x6
           if(unsigned(rs1_v) < unsigned(rs2_v)) then
             takeBranch <= '1';
           else 
@@ -69,7 +68,7 @@ begin
           end if;
         end if;
 
-        if(func3 = "111") then -- bgeu
+        if(func3 = "111") then -- bgeu 0x7
           if(unsigned(rs1_v) >= unsigned(rs2_v)) then
             takeBranch <= '1';
           else 
@@ -87,11 +86,11 @@ begin
     v_xor     <= rs1_v xor opt2;
     v_or      <= rs1_v or  opt2;
     v_and     <= rs1_v and opt2;
-    v_sll     <= STD_LOGIC_VECTOR(shift_left(unsigned(rs1_v) , to_integer(unsigned(opt2(4 downto 0)))));
-    v_srl     <= STD_LOGIC_VECTOR(shift_right(unsigned(rs1_v) , to_integer(unsigned(opt2(4 downto 0)))));
+    v_sll     <= STD_LOGIC_VECTOR(shift_left(unsigned(rs1_v) , to_integer(unsigned(opt2(4 downto 0))))); -- shift left logical
+    v_srl     <= STD_LOGIC_VECTOR(shift_right(unsigned(rs1_v) , to_integer(unsigned(opt2(4 downto 0))))); -- shift right logical
     v_sra     <= STD_LOGIC_VECTOR(shift_right(signed(rs1_v) , to_integer(unsigned(opt2(4 downto 0))))); -- msb extends
-    v_slt     <= STD_LOGIC_VECTOR(to_unsigned(1,32)) when (signed(rs1_v) < signed(opt2)) else (others => '0');
-    v_sltu    <= STD_LOGIC_VECTOR(to_unsigned(1,32)) when (unsigned(rs1_v) < unsigned(opt2)) else (others => '0');
+    v_slt     <= STD_LOGIC_VECTOR(to_unsigned(1,32)) when (signed(rs1_v) < signed(opt2)) else (others => '0'); -- shift less than
+    v_sltu    <= STD_LOGIC_VECTOR(to_unsigned(1,32)) when (unsigned(rs1_v) < unsigned(opt2)) else (others => '0'); -- shift less than unsigned
 
   
   
@@ -105,7 +104,7 @@ begin
                 v_srl   when func3 = "101" and isAluSubstraction = '0' else --0x5
                 v_sra   when func3 = "101" and isAluSubstraction = '1' else --msb extends
                 v_slt   when func3 = "010" else -- 0x2
-                v_sltu  when func3 = "011" ; -- 0x3
+                v_sltu  when func3 = "011" else (others => '0'); -- 0x3
 
 end arch;
  
