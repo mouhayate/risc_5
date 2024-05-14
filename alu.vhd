@@ -27,57 +27,53 @@ begin
     
     opt2 <= rs2_v when isALUreg = '1' else imm_v; 
     
-      if(isBranch = '1') then --beq 0x0
-        if(func3 = "000") then 
-          if(signed(rs1_v) = signed(rs2_v)) then
-            takeBranch <= '1';
-          else 
+    process (isBranch, func3, rs1_v, rs2_v)
+    begin
+      if isBranch = '1' then
+        case func3 is
+          when "000" =>
+            if signed(rs1_v) = signed(rs2_v) then
+              takeBranch <= '1';
+            else 
+              takeBranch <= '0';
+            end if;
+          when "001" =>
+            if signed(rs1_v) /= signed(rs2_v) then
+              takeBranch <= '1';
+            else 
+              takeBranch <= '0';
+            end if;
+          when "100" =>
+            if signed(rs1_v) < signed(rs2_v) then
+              takeBranch <= '1';
+            else 
+              takeBranch <= '0';
+            end if;
+          when "101" =>
+            if signed(rs1_v) >= signed(rs2_v) then
+              takeBranch <= '1';
+            else 
+              takeBranch <= '0';
+            end if;
+          when "110" =>
+            if unsigned(rs1_v) < unsigned(rs2_v) then
+              takeBranch <= '1';
+            else 
+              takeBranch <= '0';
+            end if;
+          when "111" =>
+            if unsigned(rs1_v) >= unsigned(rs2_v) then
+              takeBranch <= '1';
+            else 
+              takeBranch <= '0';
+            end if;
+          when others =>
             takeBranch <= '0';
-          end if;
-        end if;
-
-        if(func3 = "001") then --bne 0x1
-          if(signed(rs1_v) /= signed(rs2_v)) then
-            takeBranch <= '1';
-          else 
-            takeBranch <= '0';
-          end if;
-        end if;
-
-        if(func3 = "100") then -- blt 0x4
-          if(signed(rs1_v) < signed(rs2_v)) then
-            takeBranch <= '1';
-          else 
-            takeBranch <= '0';
-          end if;
-        end if;
-
-        if(func3 = "101") then -- bge 0x5
-          if(signed(rs1_v) >= signed(rs2_v)) then
-            takeBranch <= '1';
-          else 
-            takeBranch <= '0';
-          end if;
-        end if;
-
-        if(func3 = "110") then --bltu 0x6
-          if(unsigned(rs1_v) < unsigned(rs2_v)) then
-            takeBranch <= '1';
-          else 
-            takeBranch <= '0';
-          end if;
-        end if;
-
-        if(func3 = "111") then -- bgeu 0x7
-          if(unsigned(rs1_v) >= unsigned(rs2_v)) then
-            takeBranch <= '1';
-          else 
-            takeBranch <= '0';
-          end if;
-        end if;
+        end case;
       else
-      takeBranch <= '0';
+        takeBranch <= '0';
       end if;
+    end process;
 
 
     -- R & I operation

@@ -36,6 +36,8 @@ begin
 
     -- type I imm[11|0]
     I_imm(31 downto 12)    <= repeat_bit(I_imm(11) , 20);
+    I_imm(11 downto 0)    <= INSTR(31 downto 20);
+
 
     -- type U imm[31|12]
     U_imm(31 downto 12)    <= INSTR(31 downto 12);
@@ -47,7 +49,7 @@ begin
     S_imm(4 downto 0)      <= INSTR(11 downto 7);
     
 
-    -- type S imm[12|10:5] & imm[4|1:11]
+    -- type B imm[12|10:5] & imm[4|1:11]
     B_imm(0)               <= '0';
     B_imm(4 downto 1)      <= INSTR(11 downto 8);
     B_imm(10 downto 5)     <= INSTR(30 downto 25);
@@ -57,10 +59,10 @@ begin
     
      
     -- instruction 
-    imm     <= U_imm when isLui   = '1' or isAuipc = '1' else
-                    S_imm when isStore = '1' else
-                        I_imm when isLoad = '1' else
-                            J_imm when isJAL = '1' else
-                                B_imm when isbranch = '1';
+    imm     <=  U_imm when isLui   = '1' or isAuipc = '1' else
+                S_imm when isStore = '1' else
+                I_imm when isLoad = '1' else
+                J_imm when isJAL = '1' else
+                B_imm when isbranch = '1';
  
 end arch;
