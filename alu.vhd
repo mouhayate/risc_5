@@ -24,17 +24,9 @@ architecture arch of alu is
   SIGNAL v_plus , v_minus , v_xor , v_or, v_and , v_sll , v_srl, v_sra , opt2 , v_slt , v_sltu : STD_LOGIC_VECTOR(31 downto 0);  
 begin
   
-    multiplex_2 : process(isALUreg , rs2_v , imm_v)
-    begin
-      if (isALUreg = '1') then 
-        opt2 <= rs2_v;
-      else 
-        opt2  <= imm_v;
-      end if;
-    end process;
     
-    branch : process(isBranch ,func3 , rs1_v , rs2_v , imm_v)
-    begin
+    opt2 <= rs2_v when isALUreg = '1' else imm_v; 
+    
       if(isBranch = '1') then --beq
         if(func3 = "000") then 
           if(signed(rs1_v) = signed(rs2_v)) then
@@ -87,7 +79,6 @@ begin
       else
       takeBranch <= '0';
       end if;
-    end process;
 
 
     -- R & I operation
@@ -99,22 +90,22 @@ begin
     v_sll     <= STD_LOGIC_VECTOR(shift_left(unsigned(rs1_v) , to_integer(unsigned(opt2(4 downto 0)))));
     v_srl     <= STD_LOGIC_VECTOR(shift_right(unsigned(rs1_v) , to_integer(unsigned(opt2(4 downto 0)))));
     v_sra     <= STD_LOGIC_VECTOR(shift_right(signed(rs1_v) , to_integer(unsigned(opt2(4 downto 0))))); -- msb extends
-    v_slt     <= STD_LOGIC_VECTOR(to_unsigned(1,32)) when signed(rs1_v) < signed(opt2) else (others => '0');
-    v_sltu    <= STD_LOGIC_VECTOR(to_unsigned(1,32)) when unsigned(rs1_v) < unsigned(opt2) else (others => '0');
+    v_slt     <= STD_LOGIC_VECTOR(to_unsigned(1,32)) when (signed(rs1_v) < signed(opt2)) else (others => '0');
+    v_sltu    <= STD_LOGIC_VECTOR(to_unsigned(1,32)) when (unsigned(rs1_v) < unsigned(opt2)) else (others => '0');
 
   
   
 
-    aluOut_v <= v_plus when func3 = "000" and (isAluSubstraction = '0' or (isAluSubstraction = '1' and isALUreg = '0')) else -- soustraction avec un nombre negative
-                  v_minus when func3 = "000" and isAluSubstraction = '1' else
-                    v_xor  when func3 = "100" else --0x4
-                      v_or   when func3 = "110" else --0x6
-                        v_and  when func3 = "111" else --0x7
-                          v_sll  when func3 = "001" else --0x1
-                            v_srl  when func3 = "101" and isAluSubstraction = '0' else --0x5
-                              v_sra  when func3 = "101" and isAluSubstraction = '1' else --msb extends
-                                v_slt  when func3 = "010" else -- 0x2
-                                  v_sltu  when func3 = "011" ; -- 0x3
+    aluOut_v <= v_plus  when func3 = "000" and (isAluSubstraction = '0' or (isAluSubstraction = '1' and isALUreg = '0')) else -- soustraction avec un nombre negative
+                v_minus when func3 = "000" and isAluSubstraction = '1' else
+                v_xor   when func3 = "100" else --0x4
+                v_or    when func3 = "110" else --0x6
+                v_and   when func3 = "111" else --0x7
+                v_sll   when func3 = "001" else --0x1
+                v_srl   when func3 = "101" and isAluSubstraction = '0' else --0x5
+                v_sra   when func3 = "101" and isAluSubstraction = '1' else --msb extends
+                v_slt   when func3 = "010" else -- 0x2
+                v_sltu  when func3 = "011" ; -- 0x3
 
 end arch;
  

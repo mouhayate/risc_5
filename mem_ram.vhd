@@ -45,24 +45,20 @@ begin
     begin
       if CLOCK'event and CLOCK='1' then
         if ENABLE = '1' then 
-            if (WRITE_M(3) = '1') then
-                memory(to_integer(unsigned(ADDR_RW))) (31 downto 24)  <= DATA_W(31 downto 24);
-            end if;
-                
-            if (WRITE_M(2) = '1') then
-                memory(to_integer(unsigned(ADDR_RW))) (23 downto 16)  <= DATA_W(23 downto 16);
-            end if;
-
-            if (WRITE_M(1) = '1') then
-                memory(to_integer(unsigned(ADDR_RW))) (15 downto 8)  <= DATA_W(15 downto 8);
-            end if;
-                
-            if (WRITE_M(0) = '1') then
-                memory(to_integer(unsigned(ADDR_RW))) (7 downto 0) <= DATA_W(7 downto 0); -- on remplie par bloc de 8
-            end if;
+            case WRITE_M is
+                when "0001" =>
+                    memory(to_integer(unsigned(ADDR_RW)))(7 downto 0) <= DATA_W(7 downto 0);
+                when "0010" =>
+                    memory(to_integer(unsigned(ADDR_RW)))(15 downto 8) <= DATA_W(15 downto 8);
+                when "0100" =>
+                    memory(to_integer(unsigned(ADDR_RW)))(23 downto 16) <= DATA_W(23 downto 16);
+                when "1000" =>
+                    memory(to_integer(unsigned(ADDR_RW)))(31 downto 24) <= DATA_W(31 downto 24);
+                when others =>
+                    null;
         end if; 
         DATA_R <= memory(to_integer(unsigned(ADDR_RW))); 
-      end if ;
+        end if; 
     end process ;
 
 end arch;
